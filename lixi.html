@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vòng quay may mắn</title>
+  <style>
+    :root{
+      --bg1:#fff1f5; --bg2:#ffe8cc;
+      --card:#ffffffcc;
+      --text:#1f2937;
+      --red:#ef4444;
+      --gold:#f59e0b;
+      --shadow: 0 20px 60px rgba(0,0,0,.12);
+      --radius: 22px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 20%, var(--bg2), transparent 60%),
+        radial-gradient(1200px 800px at 80% 10%, var(--bg1), transparent 55%),
+        linear-gradient(120deg, #fff7ed, #fff1f2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      overflow:hidden;
+    }
+    .wrap{ width:min(520px, 100%); position:relative; }
+    .card{
+      background:var(--card);
+      backdrop-filter: blur(10px);
+      border:1px solid rgba(255,255,255,.7);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:24px;
+    }
+    .title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:10px;
+    }
+    h1{ font-size:26px; line-height:1.2; margin:0; }
+    .badge{
+      font-size:12px;
+      padding:8px 10px;
+      border-radius:999px;
+      background:rgba(245,158,11,.15);
+      color:#92400e;
+      border:1px solid rgba(245,158,11,.25);
+      white-space:nowrap;
+    }
+    p{margin:8px 0 0; color:#374151}
+    .row{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+    input{
+      flex:1 1 240px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.08);
+      outline:none;
+      font-size:14px;
+      background:#fff;
+    }
+    input:focus{
+      border-color: rgba(239,68,68,.6);
+      box-shadow: 0 0 0 4px rgba(239,68,68,.12);
+    }
+    button{
+      flex:1 1 150px;
+      padding:12px 14px;
+      border:none;
+      border-radius:14px;
+      font-size:14px;
+      cursor:pointer;
+      transition: transform .08s ease, filter .2s ease, box-shadow .2s ease;
+      position:relative;
+      overflow:hidden;
+      user-select:none;
+    }
+    .btn-primary{
+      background:linear-gradient(180deg, #fb7185, #ef4444);
+      color:white;
+      box-shadow: 0 14px 28px rgba(239,68,68,.22);
+      font-weight:700;
+    }
+    .btn-primary:active{ transform: translateY(1px) scale(.99); }
+    .btn-ghost{
+      background:transparent;
+      border:1px solid rgba(0,0,0,.08);
+      color:#111827;
+    }
+    .btn-ghost:hover{ filter:brightness(.98); }
+
+    /* ✅ NÚT "GỬI THÔNG BÁO" LUNG LINH */
+    .btn-share{
+      background: linear-gradient(180deg, #f59e0b, #ef4444);
+      color:#fff;
+      font-weight:900;
+      letter-spacing:.2px;
+      box-shadow: 0 18px 36px rgba(245,158,11,.28), 0 10px 22px rgba(239,68,68,.22);
+      border:1px solid rgba(255,255,255,.25);
+      transform: translateZ(0);
+    }
+    .btn-share:hover{
+      filter: brightness(1.02);
+      box-shadow: 0 22px 44px rgba(245,158,11,.35), 0 12px 26px rgba(239,68,68,.28);
+      transform: translateY(-1px);
+    }
+    .btn-share:active{ transform: translateY(1px) scale(.99); }
+
+    /* shimmer */
+    .btn-share::before{
+      content:"";
+      position:absolute;
+      top:-20%;
+      left:-40%;
+      width:60%;
+      height:140%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+      transform: rotate(18deg);
+      opacity:.85;
+      animation: shimmer 2.2s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes shimmer{
+      0%{ left:-60%; opacity:.0; }
+      15%{ opacity:.85; }
+      45%{ left:110%; opacity:.0; }
+      100%{ left:110%; opacity:0; }
+    }
+
+    /* glow pulse */
+    .btn-share.glow{
+      animation: glowPulse 1.3s ease-in-out infinite;
+    }
+    @keyframes glowPulse{
+      0%{ box-shadow: 0 18px 36px rgba(245,158,11,.26), 0 10px 22px rgba(239,68,68,.22); }
+      50%{ box-shadow: 0 22px 50px rgba(245,158,11,.42), 0 12px 30px rgba(239,68,68,.34); }
+      100%{ box-shadow: 0 18px 36px rgba(245,158,11,.26), 0 10px 22px rgba(239,68,68,.22); }
+    }
+
+    /* bounce khi ra kết quả */
+    .btn-share.bounce{
+      animation: bounce2 650ms ease-out 1;
+    }
+    @keyframes bounce2{
+      0%{ transform: translateY(0) scale(1); }
+      30%{ transform: translateY(-5px) scale(1.02); }
+      55%{ transform: translateY(0) scale(1); }
+      75%{ transform: translateY(-3px) scale(1.01); }
+      100%{ transform: translateY(0) scale(1); }
+    }
+
+    /* badge "nhớ ấn" */
+    .btn-share .ping{
+      position:absolute;
+      top:-10px;
+      right:-10px;
+      font-size:11px;
+      padding:6px 8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.92);
+      color:#991b1b;
+      font-weight:900;
+      border:1px solid rgba(239,68,68,.25);
+      box-shadow: 0 10px 20px rgba(0,0,0,.12);
+      transform: rotate(8deg);
+      pointer-events:none;
+    }
+    .btn-share .ping::after{
+      content:"";
+      position:absolute;
+      inset:-6px;
+      border-radius:999px;
+      border:2px solid rgba(255,255,255,.6);
+      opacity:.0;
+      animation: ring 1.2s ease-out infinite;
+    }
+    @keyframes ring{
+      0%{ transform: scale(.85); opacity:.0; }
+      30%{ opacity:.8; }
+      100%{ transform: scale(1.35); opacity:0; }
+    }
+
+    .envelope{
+      margin-top:18px;
+      border-radius: var(--radius);
+      border:1px dashed rgba(239,68,68,.35);
+      background:rgba(255,255,255,.7);
+      padding:18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+    .envelope .left{ display:flex; align-items:center; gap:12px; }
+    .seal{
+      width:48px; height:48px;
+      border-radius:16px;
+      background: radial-gradient(circle at 30% 30%, #ffd8a8, #f59e0b);
+      display:grid; place-items:center;
+      box-shadow: 0 12px 24px rgba(245,158,11,.25);
+      border:1px solid rgba(245,158,11,.3);
+      font-size:22px;
+    }
+    .status{ font-size:14px; }
+    .status b{color:#111827}
+    .amount{
+      font-size:22px;
+      font-weight:800;
+      color:#b91c1c;
+      letter-spacing:.2px;
+    }
+    .muted{color:#6b7280; font-size:13px}
+
+    /* Modal */
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      z-index:50;
+      background:rgba(0,0,0,.35);
+    }
+    .modal.show{display:flex}
+    .modal .box{
+      width:min(520px, 100%);
+      background:white;
+      border-radius: 26px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.3);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.6);
+    }
+    .box .top{
+      padding:22px 22px 12px;
+      background: linear-gradient(180deg, #fff7ed, #ffffff);
+    }
+    .box .top h2{ margin:0; font-size:20px; }
+    .box .top .sub{ margin-top:6px; color:#4b5563; font-size:14px; }
+
+    .wheelWrap{
+      padding:14px 22px 0;
+      display:grid;
+      place-items:center;
+      gap:10px;
+    }
+    .wheelStage{
+      position:relative;
+      width:min(360px, 92vw);
+      aspect-ratio:1/1;
+      display:grid;
+      place-items:center;
+    }
+    canvas#wheel{
+      width:100%;
+      height:100%;
+      border-radius:999px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.18);
+      background:#fff;
+      border:10px solid rgba(245,158,11,.25);
+    }
+    .pointer{
+      position:absolute;
+      top:-6px;
+      width:0;height:0;
+      border-left:14px solid transparent;
+      border-right:14px solid transparent;
+      border-top:26px solid #111827;
+      filter: drop-shadow(0 8px 10px rgba(0,0,0,.2));
+    }
+    .spinBtn{
+      width:100%;
+      margin:0 22px;
+    }
+
+    .hongbao{
+      margin:14px 22px 0;
+      border-radius: 22px;
+      background: linear-gradient(180deg, #ef4444, #b91c1c);
+      color:white;
+      padding:18px;
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.18);
+      display:none;
+    }
+    .hongbao.show{display:block}
+    .hongbao:before{
+      content:"";
+      position:absolute;
+      inset:-60px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(245,158,11,.35), transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(245,158,11,.25), transparent 55%);
+      transform: rotate(12deg);
+    }
+    .hongbao .inner{ position:relative; z-index:1; }
+    .hongbao .line1{ font-size:14px; opacity:.95 }
+    .hongbao .money{
+      margin-top:8px;
+      font-size:34px;
+      font-weight:900;
+      letter-spacing:.4px;
+      color:#fde68a;
+      text-shadow: 0 10px 24px rgba(0,0,0,.25);
+    }
+    .hongbao .note{ margin-top:6px; font-size:13px; opacity:.9; }
+
+    .box .actions{
+      display:flex;
+      gap:10px;
+      padding:16px 22px 22px;
+    }
+    .actions button{ flex:1; }
+    .toast{ margin:12px 22px 0; font-size:13px; color:#6b7280; }
+
+    canvas#fx{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:60;
+    }
+
+    .u-wrap{ padding:14px 22px 0; }
+    .u-card{
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:18px;
+      padding:16px;
+      background:#fff;
+      display:grid;
+      gap:10px;
+    }
+    .u-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .u-note{ font-size:13px; color:#6b7280; }
+    .u-preview{
+      width:100%;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.06);
+      background:#f9fafb;
+      display:none;
+      max-height:360px;
+      object-fit:contain;
+    }
+    .u-file{
+      flex: 1 1 240px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.08);
+      background:#fff;
+      font-size:14px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fx"></canvas>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="title">
+        <h1>🎡 Vòng quayk may mắn</h1>
+        <div class="badge">Tết vui • Quay phát trúng</div>
+      </div>
+      <p>Nhập tên rồi bấm <b>Mở vòng quay</b>. (Chỉ nhận được 1 lần thôi nha 😌)</p>
+
+      <div class="row">
+        <input id="name" placeholder="Tên của bé iu (vd: Bông, Mèo, ...)">
+        <button class="btn-primary" id="btn">🎡 Mở vòng quay</button>
+      </div>
+
+      <div class="row">
+        <button class="btn-ghost" id="reset" title="Cho nhận lại (chỉ bạn dùng)">Reset</button>
+        <button class="btn-ghost" id="copy">Copy lời chúc</button>
+      </div>
+
+      <div class="envelope" aria-live="polite">
+        <div class="left">
+          <div class="seal">🧧</div>
+          <div class="status">
+            <div><b>Trạng thái:</b> <span id="statusText">Chưa nhận</span></div>
+            <div class="muted" id="hint">Bé iu bấm nút để quay nha.</div>
+          </div>
+        </div>
+        <div class="amount" id="amountText">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal quay -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true">
+    <div class="box">
+      <div class="top">
+        <h2 id="mTitle">🎡 Quay may mắn!</h2>
+        <div class="sub" id="mSub">Quay xong mới biết trúng bao nhiêu 💖</div>
+      </div>
+
+      <div class="wheelWrap">
+        <div class="wheelStage">
+          <div class="pointer" aria-hidden="true"></div>
+          <canvas id="wheel" width="720" height="720"></canvas>
+        </div>
+      </div>
+
+      <div class="row spinBtn">
+        <button class="btn-primary" id="spin">🌀 Quay</button>
+      </div>
+
+      <div class="hongbao" id="resultCard">
+        <div class="inner">
+          <div class="line1" id="mLine">Gửi tới: …</div>
+          <div class="money" id="mMoney">0₫</div>
+          <div class="note" id="mNote">Lời chúc: …</div>
+        </div>
+      </div>
+
+      <div class="toast" id="toast">Mẹo: Quay xong bạn có thể chụp màn hình gửi lại 😄</div>
+
+      <div class="actions">
+        <button class="btn-primary" id="close">Đóng</button>
+
+        <!-- ✅ đổi nút share thành "lung linh" -->
+        <button class="btn-share" id="share" aria-label="Gửi thông báo">
+          ✨ Gửi thông báo
+          <span class="ping">NHỚ ẤN</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Upload ảnh để Reset -->
+  <div class="modal" id="uploadModal" role="dialog" aria-modal="true">
+    <div class="box">
+      <div class="top">
+        <h2>📸 Upload 1 ảnh để được quay lại</h2>
+        <div class="sub">Gửi ảnh lên để anh xem, xong hệ thống sẽ reset cho quay tiếp 😌</div>
+      </div>
+
+      <div class="u-wrap">
+        <div class="u-card">
+          <div class="u-row">
+            <input class="u-file" id="payImg" type="file" accept="image/*">
+            <button class="btn-primary" id="sendImg" disabled>Gửi ảnh & Reset</button>
+          </div>
+          <div class="u-note" id="uploadHint">Chọn ảnh trước rồi mới gửi được.</div>
+          <img id="preview" class="u-preview" alt="Preview ảnh" />
+        </div>
+
+        <div class="toast" style="margin-left:0;margin-right:0;">
+          Lưu ý: Nếu Discord chặn CORS ở trình duyệt, ảnh có thể không gửi trực tiếp được (lúc đó cần backend/proxy).
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-ghost" id="uploadClose">Huỷ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Config =====
+    const ONLY_ONCE = true;
+    const STORAGE_KEY = "lixi_v2_wheel_100";
+    const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1470475941506449519/XwD8hUAxFhnBtd6pVEQTjXLQ_nN9FwLky2o5hmD4LIGZN5Jc-S_1wiMwjU9uAFRIQNJd";
+
+    const PRIZES = [
+      { money: 20000,  label: "20k"  },
+      { money: 50000,  label: "50k"  },
+      { money: 70000,  label: "70k"  },
+      { money: 100000, label: "100k" },
+      { money: 150000, label: "150k" },
+      { money: 200000, label: "200k" },
+      { money: 300000, label: "300k" },
+      { money: 500000, label: "500k" }
+    ];
+
+    const WISHES = [
+      "Năm mới luôn xinh đẹp, vui vẻ và yêu anh nhiều hơn 😚",
+      "Chúc mình luôn bên nhau, hạnh phúc dài lâu 💖",
+      "Chúc bé iu học giỏi/đi làm thuận lợi, gặp nhiều may mắn ✨",
+      "Chúc bé iu cười nhiều hơn, buồn ít lại, thương anh nhiều hơn 😌"
+    ];
+
+    // ===== DOM =====
+    const $ = (id) => document.getElementById(id);
+    const nameEl = $("name");
+    const btn = $("btn");
+    const resetBtn = $("reset");
+    const copyBtn = $("copy");
+    const statusText = $("statusText");
+    const amountText = $("amountText");
+
+    const modal = $("modal");
+    const closeBtn = $("close");
+    const shareBtn = $("share");
+    const spinBtn = $("spin");
+
+    const resultCard = $("resultCard");
+    const mLine = $("mLine");
+    const mMoney = $("mMoney");
+    const mNote = $("mNote");
+    const mSub = $("mSub");
+    const toast = $("toast");
+
+    // Upload modal
+    const uploadModal = $("uploadModal");
+    const uploadClose = $("uploadClose");
+    const payImg = $("payImg");
+    const sendImg = $("sendImg");
+    const preview = $("preview");
+    const uploadHint = $("uploadHint");
+
+    // Wheel canvas
+    const wheelCanvas = $("wheel");
+    const wctx = wheelCanvas.getContext("2d");
+
+    // ===== Utils =====
+    const fmtVND = (n) => n.toLocaleString("vi-VN") + "₫";
+    const randInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const randPick = (arr) => arr[randInt(0, arr.length - 1)];
+    const norm = (s) => (s || "").trim().toLowerCase();
+
+    function randomWish() { return randPick(WISHES); }
+
+    function loadState() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); }
+      catch { return null; }
+    }
+    function saveState(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+    function clearState() { localStorage.removeItem(STORAGE_KEY); }
+
+    function setReceivedUI(state) {
+      statusText.textContent = "Đã nhận";
+      amountText.textContent = fmtVND(state.money);
+      $("hint").textContent = `Nhận bởi "${state.name}" lúc ${new Date(state.time).toLocaleString("vi-VN")}`;
+      btn.disabled = true;
+      btn.textContent = "✅ Đã nhận rồi";
+      btn.style.filter = "grayscale(.15)";
+      btn.style.cursor = "not-allowed";
+    }
+
+    function setNotReceivedUI() {
+      statusText.textContent = "Chưa nhận";
+      amountText.textContent = "—";
+      $("hint").textContent = "Bé iu bấm nút để quay nha.";
+      btn.disabled = false;
+      btn.textContent = "🎡 Mở vòng quay";
+      btn.style.filter = "";
+      btn.style.cursor = "pointer";
+    }
+
+    // ✅ bật/tắt hiệu ứng cho nút share
+    function highlightShare(on) {
+      if (!shareBtn) return;
+      shareBtn.classList.toggle("glow", !!on);
+    }
+    function bounceShare() {
+      if (!shareBtn) return;
+      shareBtn.classList.remove("bounce");
+      // reflow
+      void shareBtn.offsetWidth;
+      shareBtn.classList.add("bounce");
+      setTimeout(()=> shareBtn.classList.remove("bounce"), 800);
+    }
+
+    // ===== Confetti =====
+    const fx = $("fx");
+    const ctx = fx.getContext("2d");
+    let particles = [];
+    function resize() {
+      fx.width = window.innerWidth * devicePixelRatio;
+      fx.height = window.innerHeight * devicePixelRatio;
+      fx.style.width = window.innerWidth + "px";
+      fx.style.height = window.innerHeight + "px";
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    function popConfetti() {
+      const colors = ["#ef4444","#f59e0b","#22c55e","#3b82f6","#a855f7","#f472b6"];
+      const count = 180;
+      particles = [];
+      for (let i=0;i<count;i++){
+        particles.push({
+          x: window.innerWidth/2,
+          y: window.innerHeight/3,
+          vx: (Math.random()-0.5)*14,
+          vy: (Math.random()-1.2)*14,
+          g: 0.28 + Math.random()*0.12,
+          r: 3 + Math.random()*4,
+          c: colors[Math.floor(Math.random()*colors.length)],
+          a: 1
+        });
+      }
+      function tick(){
+        ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+        particles.forEach(p=>{
+          p.vy += p.g;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.a *= 0.992;
+          ctx.globalAlpha = p.a;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+          ctx.fillStyle = p.c;
+          ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+        particles = particles.filter(p=>p.a>0.06 && p.y < window.innerHeight+50);
+        if (particles.length) requestAnimationFrame(tick);
+        else ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // ===== Modal quay =====
+    function openModalBase(name) {
+      mSub.textContent = `Quay xong chúc ${name} năm mới bình an & rực rỡ ✨`;
+      resultCard.classList.remove("show");
+      toast.textContent = "Mẹo: Quay xong bạn có thể chụp màn hình gửi lại 😄";
+      modal.classList.add("show");
+    }
+    function closeModal(){ modal.classList.remove("show"); }
+
+    closeBtn.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+
+    // ===== Upload modal =====
+    function openUploadModal() {
+      payImg.value = "";
+      preview.src = "";
+      preview.style.display = "none";
+      sendImg.disabled = true;
+      uploadHint.textContent = "Chọn ảnh trước rồi mới gửi được.";
+      uploadModal.classList.add("show");
+    }
+    function closeUploadModal() { uploadModal.classList.remove("show"); }
+
+    uploadClose.addEventListener("click", closeUploadModal);
+    uploadModal.addEventListener("click", (e) => { if (e.target === uploadModal) closeUploadModal(); });
+
+    payImg.addEventListener("change", () => {
+      const file = payImg.files?.[0];
+      if (!file) {
+        preview.style.display = "none";
+        sendImg.disabled = true;
+        uploadHint.textContent = "Chọn ảnh trước rồi mới gửi được.";
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        alert("Chỉ chọn file ảnh thôi nha.");
+        payImg.value = "";
+        preview.style.display = "none";
+        sendImg.disabled = true;
+        uploadHint.textContent = "Chọn ảnh trước rồi mới gửi được.";
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      preview.src = url;
+      preview.style.display = "block";
+      sendImg.disabled = false;
+      uploadHint.textContent = "Ok rồi, bấm “Gửi ảnh & Reset”.";
+    });
+
+    async function sendImageToDiscord(file) {
+      if (!DISCORD_WEBHOOK_URL) throw new Error("Missing webhook URL");
+
+      const who = (nameEl.value || "").trim() || "Bé iu";
+      const time = new Date().toLocaleString("vi-VN");
+
+      const fd = new FormData();
+      fd.append("file", file, file.name);
+
+      fd.append("payload_json", JSON.stringify({
+        content:
+`📸 ẢNH ĐỂ RESET VÒNG QUAY
+👤 Người gửi: ${who}
+🕒 Thời gian: ${time}
+🧾 Ghi chú: Upload 1 ảnh = 1 lượt reset`
+      }));
+
+      const res = await fetch(DISCORD_WEBHOOK_URL, { method: "POST", body: fd });
+      if (!res.ok) throw new Error("Webhook failed: " + res.status);
+    }
+
+    // ===== Wheel draw =====
+    const CX = wheelCanvas.width / 2;
+    const CY = wheelCanvas.height / 2;
+    const R  = Math.min(CX, CY) - 18;
+
+    let angle = 0;
+    function drawWheel(currentAngle = 0) {
+      wctx.clearRect(0,0,wheelCanvas.width,wheelCanvas.height);
+      const n = PRIZES.length;
+      const step = (Math.PI * 2) / n;
+
+      wctx.beginPath();
+      wctx.arc(CX, CY, R + 8, 0, Math.PI*2);
+      wctx.fillStyle = "rgba(245,158,11,.15)";
+      wctx.fill();
+
+      for (let i = 0; i < n; i++) {
+        const start = currentAngle + i * step;
+        const end   = start + step;
+
+        wctx.beginPath();
+        wctx.moveTo(CX, CY);
+        wctx.arc(CX, CY, R, start, end);
+        wctx.closePath();
+        wctx.fillStyle = (i % 2 === 0) ? "#ef4444" : "#f59e0b";
+        wctx.fill();
+
+        wctx.save();
+        wctx.translate(CX, CY);
+        wctx.rotate(start + step/2);
+        wctx.textAlign = "right";
+        wctx.fillStyle = "white";
+        wctx.font = "bold 34px ui-sans-serif, system-ui";
+        wctx.fillText(PRIZES[i].label, R - 18, 12);
+        wctx.restore();
+      }
+
+      wctx.beginPath();
+      wctx.arc(CX, CY, 70, 0, Math.PI*2);
+      wctx.fillStyle = "#111827";
+      wctx.fill();
+
+      wctx.fillStyle = "#fde68a";
+      wctx.font = "800 28px ui-sans-serif, system-ui";
+      wctx.textAlign = "center";
+      wctx.fillText("QUAY", CX, CY + 10);
+    }
+    drawWheel(angle);
+
+    // ===== Spin logic =====
+    let spinning = false;
+    let forcedIndex = null;
+
+    function angleToIndex(a) {
+      const n = PRIZES.length;
+      const step = (Math.PI * 2) / n;
+      const pointer = -Math.PI / 2;
+      let x = (pointer - a) % (Math.PI*2);
+      if (x < 0) x += Math.PI*2;
+      return Math.floor(x / step) % n;
+    }
+
+    function angleForIndexInside(idx, baseAngle = 0) {
+      const n = PRIZES.length;
+      const step = (Math.PI * 2) / n;
+      const pointer = -Math.PI / 2;
+      const margin = 0.15 * step;
+      const inside = margin + Math.random() * (step - 2 * margin);
+      let target = pointer - (idx * step + inside);
+
+      target = ((target % (Math.PI*2)) + (Math.PI*2)) % (Math.PI*2);
+      const base = ((baseAngle % (Math.PI*2)) + (Math.PI*2)) % (Math.PI*2);
+
+      let delta = target - base;
+      if (delta < 0) delta += Math.PI * 2;
+      return { delta };
+    }
+
+    function spinToIndex(targetIndex) {
+      spinning = true;
+      spinBtn.disabled = true;
+      spinBtn.textContent = "🌀 Đang quay...";
+      resultCard.classList.remove("show");
+      highlightShare(false);
+
+      const extraSpins = 6 + Math.floor(Math.random()*3);
+      const duration = 3600 + Math.random()*600;
+      const start = performance.now();
+      const startAngle = angle;
+
+      const { delta } = angleForIndexInside(targetIndex, startAngle);
+      const finalAngle = startAngle + delta + extraSpins * Math.PI * 2;
+
+      const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+      function tick(now) {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = easeOutCubic(t);
+        angle = startAngle + (finalAngle - startAngle) * eased;
+        drawWheel(angle);
+
+        if (t < 1) requestAnimationFrame(tick);
+        else {
+          angle = angle % (Math.PI*2);
+          const landed = angleToIndex(angle);
+
+          spinning = false;
+          spinBtn.disabled = true;
+          spinBtn.textContent = "✅ Đã quay";
+
+          onLanded(forcedIndex ?? landed);
+          forcedIndex = null;
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function showResult({name, money, wish}) {
+      mLine.textContent = `Gửi tới: ${name}`;
+      mMoney.textContent = fmtVND(money);
+      mNote.textContent = `Lời chúc: ${wish}`;
+      resultCard.classList.add("show");
+      popConfetti();
+
+      // ✅ lúc ra kết quả: làm nút share nổi bật + nhảy
+      highlightShare(true);
+      bounceShare();
+      setTimeout(bounceShare, 900);
+    }
+
+    function onLanded(index) {
+      const name = (nameEl.value || "").trim() || "Bé iu";
+      const prize = PRIZES[index];
+      const wish = randomWish();
+
+      const newState = { name, money: prize.money, wish, time: Date.now(), prizeIndex: index };
+      saveState(newState);
+      setReceivedUI(newState);
+
+      showResult(newState);
+      toast.textContent = "Trúng rồi đóoo ✅ Nhớ ấn nút ✨Gửi thông báo✨ để báo anh nha";
+    }
+
+    function prepareSpinUI() {
+      spinBtn.disabled = false;
+      spinBtn.textContent = "🌀 Quay";
+      angle = Math.random() * Math.PI * 2;
+      drawWheel(angle);
+      highlightShare(false);
+    }
+
+    function pickIndex20k() {
+      const idxs = [];
+      PRIZES.forEach((p,i)=>{ if (p.money === 20000) idxs.push(i); });
+      return idxs.length ? idxs[Math.floor(Math.random()*idxs.length)] : 0;
+    }
+
+    // ===== Init =====
+    const existing = loadState();
+    if (existing && ONLY_ONCE) setReceivedUI(existing);
+
+    btn.addEventListener("click", () => {
+      const name = (nameEl.value || "").trim() || "Bé iu";
+      const state = loadState();
+
+      openModalBase(name);
+
+      if (ONLY_ONCE && state) {
+        const n = PRIZES.length;
+        const step = (Math.PI * 2) / n;
+        const pointer = -Math.PI / 2;
+        const inside = (0.35 * step);
+        angle = pointer - (state.prizeIndex * step + inside);
+        drawWheel(angle);
+
+        spinBtn.disabled = true;
+        spinBtn.textContent = "✅ Đã quay";
+        showResult({name: state.name, money: state.money, wish: state.wish});
+        toast.textContent = "Bạn đã nhận rồi 😌 (kết quả cũ nè)";
+        return;
+      }
+
+      prepareSpinUI();
+    });
+
+    spinBtn.addEventListener("click", () => {
+      if (spinning) return;
+      const idx = pickIndex20k();
+      forcedIndex = idx;
+      spinToIndex(idx);
+    });
+
+    // ✅ click nút share thì tắt glow (đã gửi rồi)
+    shareBtn.addEventListener("click", async () => {
+      const s = loadState();
+      if (!s) return;
+
+      const message =
+`🎡 VÒNG QUAY LÌ XÌ ĐÃ CÓ KẾT QUẢ!
+👤 Người nhận: ${s.name}
+💰 Số tiền: ${fmtVND(s.money)} (${PRIZES[s.prizeIndex]?.label ?? ""})
+🕒 Thời gian: ${new Date(s.time).toLocaleString("vi-VN")}
+💌 Lời chúc: ${s.wish}`;
+
+      try {
+        const res = await fetch(DISCORD_WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: message })
+        });
+
+        if (!res.ok) throw new Error("Webhook failed: " + res.status);
+
+        toast.textContent = "Đã gửi thông báo tới anh iu ✅";
+        highlightShare(false);
+        setTimeout(()=> toast.textContent = "Mẹo: Quay xong bạn có thể chụp màn hình gửi lại 😄", 1600);
+      } catch (e) {
+        try {
+          await navigator.clipboard.writeText(message);
+          alert("Không gửi tự động được 😭 Mình đã copy nội dung, bạn dán gửi cho anh nhé!");
+        } catch {
+          alert("Không gửi được và cũng không copy được. Mở console xem lỗi nhé.");
+        }
+      }
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      const s = loadState();
+      const name = (nameEl.value || "").trim() || (s?.name ?? "bé iu");
+      const text = `Chúc ${name} năm mới vui vẻ, gặp nhiều may mắn và luôn hạnh phúc 💖`;
+      try {
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = "✅ Đã copy";
+        setTimeout(()=> copyBtn.textContent = "Copy lời chúc", 1200);
+      } catch {
+        alert("Không copy được. Đây là lời chúc:\n" + text);
+      }
+    });
+
+    function doReset() {
+      clearState();
+      setNotReceivedUI();
+      resultCard.classList.remove("show");
+      spinBtn.disabled = false;
+      spinBtn.textContent = "🌀 Quay";
+      forcedIndex = null;
+      spinning = false;
+      highlightShare(false);
+    }
+
+    resetBtn.addEventListener("click", () => {
+      const who = norm(nameEl.value);
+      if (who === "tuấn") {
+        doReset();
+        return;
+      }
+      openUploadModal();
+    });
+
+    sendImg.addEventListener("click", async () => {
+      const file = payImg.files?.[0];
+      if (!file) return;
+
+      sendImg.disabled = true;
+      sendImg.textContent = "Đang gửi...";
+      uploadHint.textContent = "Đang gửi ảnh lên hí hí...";
+
+      try {
+        await sendImageToDiscord(file);
+        uploadHint.textContent = "Gửi ảnh xong ✅ Đang reset...";
+        doReset();
+        closeUploadModal();
+      } catch (e) {
+        console.error(e);
+        uploadHint.textContent = "Gửi thất bại 😭 (có thể do CORS).";
+        alert("Không gửi ảnh trực tiếp được. Nếu bị CORS thì cần backend/proxy để upload lên Discord.");
+      } finally {
+        sendImg.textContent = "Gửi ảnh & Reset";
+        sendImg.disabled = !payImg.files?.[0];
+      }
+    });
+  </script>
+</body>
+</html>
